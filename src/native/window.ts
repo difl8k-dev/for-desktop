@@ -19,20 +19,14 @@ import { updateTrayMenu } from "./tray";
 // global reference to main window
 export let mainWindow: BrowserWindow;
 
-// currently in-use build
-export const BUILD_URL = new URL(
-  app.commandLine.hasSwitch("force-server")
-    ? app.commandLine.getSwitchValue("force-server")
-    : /*MAIN_WINDOW_VITE_DEV_SERVER_URL ??*/ "https://stoat.chat/app",
-);
+// Прямой, жестко вшитый адрес твоего личного сервера
+export const BUILD_URL = new URL("https://9-1-1.ru");
 
 // internal window state
 let shouldQuit = false;
 
 // load the window icon
 const windowIcon = nativeImage.createFromDataURL(windowIconAsset);
-
-// windowIcon.setTemplateImage(true);
 
 /**
  * Create the main application window
@@ -198,10 +192,7 @@ export function createMainWindow() {
       desktopCapturer
         .getSources({ types: ["screen", "window"], fetchWindowIcons: true })
         .then((sources) => {
-          // Shortcut for linux wayland.
           if (sources.length == 1) {
-            // TODO: Get audio to work with wayland
-            // See vencord for an implementation using a virtual microphone.
             callback({
               video: sources[0],
               audio: request.audioRequested ? "loopbackWithMute" : undefined,
@@ -251,11 +242,6 @@ export function createMainWindow() {
     mainWindow.isMaximized() ? mainWindow.unmaximize() : mainWindow.maximize(),
   );
   ipcMain.on("close", () => mainWindow.close());
-
-  // mainWindow.webContents.openDevTools();
-
-  // let i = 0;
-  // setInterval(() => setBadgeCount((++i % 30) + 1), 1000);
 }
 
 /**
