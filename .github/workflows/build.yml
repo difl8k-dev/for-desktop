@@ -1,12 +1,11 @@
+name: Build Official Desktop Client
+
 on:
-  push:
-    branches:
-      - main
-  pull_request:
+  workflow_dispatch: # Добавляет кнопку ручного запуска на сайте GitHub
 
 jobs:
   build:
-    name: Build App
+    name: Build Windows App on Linux
     runs-on: ubuntu-latest
 
     steps:
@@ -17,12 +16,20 @@ jobs:
         run: git -c submodule."assets".update=checkout submodule update --init assets
 
       - name: Setup Mise
-        uses: immich-app/devtools/actions/use-mise@cd24790a7f5f6439ac32cc94f5523cb2de8bfa8c # use-mise-action-v1.1.0
+        uses: immich-app/devtools/actions/use-mise@cd24790a7f5f6439ac32cc94f5523cb2de8bfa8c
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm install --no-frozen-lockfile
 
-      - name: Build
-        run: pnpm run package
+      - name: Build Windows Package
+        run: pnpm run package --platform=win32 --arch=x64
+        env:
+          NODE_ENV: production
+
+      - name: Upload Official Client Archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: Official-Stoat-Windows-App
+          path: out/**/* # Забирает абсолютно все скомпилированные папки и .exe файлы из out
